@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import {
   type ActionFunctionArgs,
   unstable_createMemoryUploadHandler,
@@ -57,18 +58,21 @@ type Product = {
   language?: "eng" | "spa";
   brand?: string;
   deduplication_key: string;
+  medium_image_url?: string;
 };
 
 const FieldsMap = {
-  name: 1,
-  language: 4,
-  brand: 6,
-  deduplication_key: 10,
+  name: 2,
+  language: 6,
+  brand: 8,
+  deduplication_key: 3,
+  medium_image_url: 11
 };
 
 export async function action({ request }: ActionFunctionArgs) {
+  console.log('hola')
   const uploadHandler = unstable_createMemoryUploadHandler({
-    maxPartSize: 7000000,
+    maxPartSize: 13000000,
   });
   const formData = await unstable_parseMultipartFormData(
     request,
@@ -94,6 +98,7 @@ export async function action({ request }: ActionFunctionArgs) {
       website: "DavidMoran",
       brand: line[FieldsMap.brand],
       deduplication_key: line[FieldsMap.deduplication_key],
+      medium_image_url: line[FieldsMap.medium_image_url]
     };
 
     products.push(product);
@@ -106,11 +111,13 @@ export async function action({ request }: ActionFunctionArgs) {
       website: "Ubrimaq",
       brand: line[FieldsMap.brand],
       deduplication_key: line[FieldsMap.deduplication_key],
+      medium_image_url: line[FieldsMap.medium_image_url]
     };
 
     products.push(product);
   }
 
+  console.time('Productos subidos 😎')
   for (const product of products) {
     const query = `
       INSERT Product {
@@ -118,16 +125,19 @@ export async function action({ request }: ActionFunctionArgs) {
         language := <fts::Language>"${product.language}",
         web := <Website>"${product.website}",
         brand := <str>"${product.brand}",
-        deduplication_key := <str>"${product.deduplication_key}"
+        deduplication_key := <str>"${product.deduplication_key}",
+        medium_image_url := <str>"${product.medium_image_url}"
       }
     `;
 
     try {
       await client.query(query);
-    } catch {
-      console.log(product);
+    } catch (e) {
+      const error = e as Error
+      console.log(error.message)
     }
   }
+  console.timeEnd('Productos subidos 😎')
 
   return null;
 }
@@ -151,7 +161,7 @@ export default function () {
       />
 
       {/* Otros campos del formulario */}
-      <button type="submit">Enviar</button>
+      <Button type="submit">Enviar</Button>
     </Form>
   );
 }

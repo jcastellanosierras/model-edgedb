@@ -8,6 +8,7 @@ module default {
     category: str;
     url: str;
     brand: str;
+    medium_image_url: str;
     
     required deduplication_key: str;
 
