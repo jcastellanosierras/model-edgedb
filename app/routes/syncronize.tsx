@@ -1,4 +1,8 @@
-import { type ActionFunctionArgs, unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node";
+import {
+  type ActionFunctionArgs,
+  unstable_createMemoryUploadHandler,
+  unstable_parseMultipartFormData,
+} from "@remix-run/node";
 import { Form } from "@remix-run/react";
 import React, { useState } from "react";
 import { client } from "~/utils/db.server";
@@ -51,56 +55,60 @@ type Product = {
   url?: string;
   website: string;
   language?: "eng" | "spa";
+  brand?: string;
   deduplication_key: string;
 };
 
 const FieldsMap = {
   name: 1,
   language: 4,
-  deduplication_key: 10
-}
+  brand: 6,
+  deduplication_key: 10,
+};
 
-export async function action ({ request }: ActionFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const uploadHandler = unstable_createMemoryUploadHandler({
     maxPartSize: 7000000,
-  })
+  });
   const formData = await unstable_parseMultipartFormData(
     request,
     uploadHandler
-  )
+  );
 
-  const file = formData.get("file") as File
-  const textFile = await file.text()
+  const file = formData.get("file") as File;
+  const textFile = await file.text();
 
-  const array = textFile.split("\n")
-  array.shift()
+  const array = textFile.split("\n");
+  array.shift();
 
-  if (array[array.length - 1] === "") array.pop()
+  if (array[array.length - 1] === "") array.pop();
 
-  const lines = array.map((line) => line.replace("\r", "").split('\t'))
+  const lines = array.map((line) => line.replace("\r", "").split("\t"));
 
-  const products: Product[] = []
+  const products: Product[] = [];
 
   for (const line of lines) {
     const product: Product = {
       name: line[FieldsMap.name],
       language: line[FieldsMap.language] as "eng" | "spa",
-      website: 'DavidMoran',
-      deduplication_key: line[FieldsMap.deduplication_key]
-    }
+      website: "DavidMoran",
+      brand: line[FieldsMap.brand],
+      deduplication_key: line[FieldsMap.deduplication_key],
+    };
 
-    products.push(product)
+    products.push(product);
   }
 
   for (const line of lines) {
     const product: Product = {
       name: line[FieldsMap.name],
       language: line[FieldsMap.language] as "eng" | "spa",
-      website: 'Ubrimaq',
-      deduplication_key: line[FieldsMap.deduplication_key]
-    }
+      website: "Ubrimaq",
+      brand: line[FieldsMap.brand],
+      deduplication_key: line[FieldsMap.deduplication_key],
+    };
 
-    products.push(product)
+    products.push(product);
   }
 
   for (const product of products) {
@@ -109,18 +117,19 @@ export async function action ({ request }: ActionFunctionArgs) {
         name := <str>"${product.name}",
         language := <fts::Language>"${product.language}",
         web := <Website>"${product.website}",
+        brand := <str>"${product.brand}",
         deduplication_key := <str>"${product.deduplication_key}"
       }
-    `
+    `;
 
     try {
-      await client.query(query)
+      await client.query(query);
     } catch {
-      console.log(product)
+      console.log(product);
     }
   }
 
-  return null
+  return null;
 }
 
 export default function () {
@@ -133,10 +142,17 @@ export default function () {
 
   return (
     <Form method="post" encType="multipart/form-data">
-      <input type="file"name="file" accept=".tsv" onChange={handleFileChange} required />
+      <input
+        type="file"
+        name="file"
+        accept=".tsv"
+        onChange={handleFileChange}
+        required
+      />
 
       {/* Otros campos del formulario */}
       <button type="submit">Enviar</button>
     </Form>
   );
 }
+

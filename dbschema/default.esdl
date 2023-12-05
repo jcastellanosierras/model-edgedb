@@ -7,6 +7,7 @@ module default {
     description: str;
     category: str;
     url: str;
+    brand: str;
     
     required deduplication_key: str;
 
@@ -20,6 +21,10 @@ module default {
       ),
       fts::with_options(
         .description,
+        language := .language,
+      ),
+      fts::with_options(
+        .brand,
         language := .language,
       ),
       # como se hace esto?
