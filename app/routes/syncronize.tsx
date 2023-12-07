@@ -6,31 +6,38 @@ import {
 } from "@remix-run/node";
 import { Form } from "@remix-run/react";
 import React, { useState } from "react";
-import { client } from "~/utils/db.server";
+import { typesenseAdmin } from "~/utils/typesense.server";
 
 type Product = {
-  name: string;
+  odoo_id: number;
+  default_code: string;
+  full_name: string;
+  deduplication_key: string;
   barcode?: string;
   description?: string;
   category?: string;
-  url?: string;
-  website: string;
-  language?: "eng" | "spa";
+  url_key: string;
+  backend: string;
+  lang: "eng" | "spa";
   brand?: string;
-  deduplication_key: string;
   medium_image_url?: string;
+  small_image_url?: string;
+  index: string;
 };
 
 const FieldsMap = {
-  name: 2,
-  language: 6,
+  default_code: 0,
+  full_name: 2,
+  lang: 6,
   brand: 8,
+  index: 9,
   deduplication_key: 3,
-  medium_image_url: 11
+  url_key: 3,
+  small_image_url: 10,
+  medium_image_url: 11,
 };
 
 export async function action({ request }: ActionFunctionArgs) {
-  console.log('hola')
   const uploadHandler = unstable_createMemoryUploadHandler({
     maxPartSize: 13000000,
   });
@@ -51,47 +58,52 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const products: Product[] = [];
 
+  let cont = 0
   for (const line of lines) {
     const product: Product = {
-      name: line[FieldsMap.name],
-      language: line[FieldsMap.language] as "eng" | "spa",
-      website: "DavidMoran",
+      odoo_id: cont,
+      default_code: line[FieldsMap.default_code],
+      full_name: line[FieldsMap.full_name],
+      lang: line[FieldsMap.lang] as "eng" | "spa",
+      index: line[FieldsMap.index],
+      backend: "DavidMoran",
       brand: line[FieldsMap.brand],
+      url_key: line[FieldsMap.url_key],
       deduplication_key: line[FieldsMap.deduplication_key],
+      small_image_url: line[FieldsMap.small_image_url],
       medium_image_url: line[FieldsMap.medium_image_url]
     };
 
     products.push(product);
+    cont++
   }
 
   for (const line of lines) {
     const product: Product = {
-      name: line[FieldsMap.name],
-      language: line[FieldsMap.language] as "eng" | "spa",
-      website: "Ubrimaq",
+      odoo_id: cont,
+      default_code: line[FieldsMap.default_code],
+      full_name: line[FieldsMap.full_name],
+      lang: line[FieldsMap.lang] as "eng" | "spa",
+      index: line[FieldsMap.index],
+      backend: "Ubrimaq",
       brand: line[FieldsMap.brand],
+      url_key: line[FieldsMap.url_key],
       deduplication_key: line[FieldsMap.deduplication_key],
+      small_image_url: line[FieldsMap.small_image_url],
       medium_image_url: line[FieldsMap.medium_image_url]
     };
 
     products.push(product);
+    cont++
   }
 
   console.time('Productos subidos 😎')
   for (const product of products) {
-    const query = `
-      INSERT Product {
-        name := <str>"${product.name}",
-        language := <fts::Language>"${product.language}",
-        web := <Website>"${product.website}",
-        brand := <str>"${product.brand}",
-        deduplication_key := <str>"${product.deduplication_key}",
-        medium_image_url := <str>"${product.medium_image_url}"
-      }
-    `;
-
     try {
-      await client.query(query);
+      await typesenseAdmin
+        .collections('products')
+        .documents()
+        .create(product)
     } catch (e) {
       const error = e as Error
       console.log(error.message)
