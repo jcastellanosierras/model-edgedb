@@ -8,46 +8,6 @@ import { Form } from "@remix-run/react";
 import React, { useState } from "react";
 import { client } from "~/utils/db.server";
 
-// export async function action ({ request }: ActionFunctionArgs) {
-//   const uploadHandler = unstable_createMemoryUploadHandler({
-//     maxPartSize: 6000000,
-//   })
-//   const formData = await unstable_parseMultipartFormData(request, uploadHandler)
-
-//   const file = formData.get('file') as File;
-//   const textFile = await file.text()
-
-//   const parser = parse({
-//     delimiter: '\t',
-//     columns: true,
-//     skip_empty_lines: true,
-//     quote: '"'
-//   })
-
-//   parser.on('readable', () => {
-//     let record
-//     while ((record = parser.read())) {
-//       console.log(record)
-//     }
-//   })
-
-//   parser.on('error', (err) => {
-//     console.error(err.message)
-//   })
-
-//   parser.on('end', () => {
-//     console.log('TSV file successfully processed')
-//   })
-
-//   parser.write(textFile)
-
-//   parser.end()
-
-//   // await syncronizeAlgoliaWithEdgeDB()
-
-//   return redirect('/')
-// }
-
 type Product = {
   name: string;
   barcode?: string;

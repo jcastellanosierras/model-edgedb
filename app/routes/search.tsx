@@ -7,7 +7,6 @@ type Product = {
 }
 
 async function fetchProducts(search: string, setProducts: Dispatch<SetStateAction<Product[]>>) {
-  console.log('hola')
   try {
     const response = await fetch(`/api/products?search=${search}`);
     const json = await response.json();
