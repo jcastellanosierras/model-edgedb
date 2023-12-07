@@ -98,16 +98,14 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   console.time('Productos subidos 😎')
-  for (const product of products) {
-    try {
-      await typesenseAdmin
-        .collections('products')
-        .documents()
-        .create(product)
-    } catch (e) {
-      const error = e as Error
-      console.log(error.message)
-    }
+  try {
+    await typesenseAdmin
+      .collections('products')
+      .documents()
+      .import(products)
+  } catch (e) {
+    const error = e as Error
+    console.log(error.message)
   }
   console.timeEnd('Productos subidos 😎')
 
