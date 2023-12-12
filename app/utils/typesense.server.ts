@@ -7,28 +7,20 @@ if (
   throw new Error("TYPESENSE_SEARCH_KEY is not set")
 }
 
-export const typesenseSearch = new Client({
-  nodes: [
-    {
-      host: "uxjpvryn0aweh1itp-1.a1.typesense.net",
-      port: 443,
-      protocol: "https",
-    },
-  ],
-  apiKey: process.env.TYPESENSE_SEARCH_KEY,
-  connectionTimeoutSeconds: 10,
-  numRetries: 3
-})
-
-export const typesenseAdmin = new Client({
-  nodes: [
-    {
-      host: "uxjpvryn0aweh1itp-1.a1.typesense.net",
-      port: 443,
-      protocol: "https",
-    },
-  ],
+export const serverConfig = {
   apiKey: process.env.TYPESENSE_ADMIN_KEY,
+  nodes: [
+    {
+      host: "ldck06h2mf9r5pbtp-1.a1.typesense.net",
+      port: 443,
+      protocol: "https",
+    },
+  ],
+  numRetries: 3,
   connectionTimeoutSeconds: 10,
-  numRetries: 3
-})
+
+}
+
+export const typesenseSearch = new Client(serverConfig)
+
+export const typesenseAdmin = new Client(serverConfig)

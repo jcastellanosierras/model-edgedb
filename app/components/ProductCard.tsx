@@ -6,13 +6,17 @@ import { Button } from "@/components/ui/button"
 import { CardContent, Card } from "@/components/ui/card"
 
 interface Props {
-  name: string
-  image: string
+  hit: {
+    name: string;
+    image: string;
+  };
 }
 
 export default function ProductCard ({
-  name,
-  image,
+  hit: {
+    name,
+    image,
+  }
 }: Props) {
   return (
     <Card className="flex flex-col pt-10 items-center border rounded-lg overflow-hidden shadow-lg max-w-xs mx-auto">
