@@ -15,17 +15,18 @@ export async function loader ({ request }: LoaderFunctionArgs) {
   const { searchParams } = new URL(request.url)
   const search = searchParams.get("search") ?? ""
   const filters = searchParams.getAll("filter")
-  console.log(filters)
-  console.log(filters.join(' && '))
+  const limit = searchParams.get("limit")
+  const offset = searchParams.get("offset")
 
   const filter = filters.join('&&').replace(/\(/g, "").replace(/\)/g, "")
-  console.log(filter)
 
   const response = await typesenseAdmin.collections('products').documents().search({
     q: search,
     query_by: 'full_name, backend, brand',
     group_by: 'deduplication_key',
     filter_by: filter,
+    limit: limit ? parseInt(limit) : 10,
+    offset: offset ? parseInt(offset) : 0,
     use_cache: true,
   })
 
@@ -63,6 +64,7 @@ export async function loader ({ request }: LoaderFunctionArgs) {
 
   console.log(products)
   return json({
+    length: response.found,
     products
   })
 }

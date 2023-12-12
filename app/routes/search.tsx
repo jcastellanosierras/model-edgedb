@@ -1,11 +1,9 @@
 import { type Filter, FiltersMenu } from "@/components/filters-menu";
 import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
 import ProductCard from "~/components/ProductCard";
-// import { Hits, InstantSearch, SearchBox } from 'react-instantsearch'
 import { json } from "@remix-run/node";
 import { serverConfig } from "~/utils/typesense.server";
-// import { useLoaderData } from "@remix-run/react";
-// import TypesenseInstantSearchAdapter from "typesense-instantsearch-adapter";
+import { Pagination } from "@/components/pagination";
 
 export const loader = () => {
   return json({
@@ -27,24 +25,38 @@ const Filters = {
 }
 
 async function fetchProducts(
-  search: string,
   setProducts: Dispatch<SetStateAction<Product[]>>,
-  filters: string[] = []
+  setCount: Dispatch<SetStateAction<number>>,
+  params: {
+    search: string,
+    filters?: string[],
+    limit?: number,
+    offset?: number
+  }
 ) {
   try {
     const url = new URL("/api/products", 'http://localhost:3000')
 
-    if (search) {
-      url.searchParams.set("search", search)
+    if (params.search) {
+      url.searchParams.set("search", params.search)
     }
 
-    filters.forEach((filter) => {
+    params.filters?.forEach((filter) => {
       url.searchParams.append("filter", filter)
     })
+
+    if (params.limit) {
+      url.searchParams.set("limit", params.limit.toString())
+    }
+
+    if (params.offset) {
+      url.searchParams.set("offset", params.offset.toString())
+    }
 
     const response = await fetch(url.toString());
     const json = await response.json();
     setProducts(json.products);
+    setCount(json.length);
   } catch (error) {
     const e = error as Error;
     console.error(e.message);
@@ -52,10 +64,13 @@ async function fetchProducts(
 }
 
 export default function () {
+  const [count, setCount] = useState<number>(0)
   const [products, setProducts] = useState<Product[]>([])
   const [search, setSearch] = useState<string>("")
   const [filters, setFilters] = useState<Filter[]>([])
   const [selectedFilters, setSelectedFilters] = useState<string[]>([])
+  const [limit, setLimit] = useState<number>(10)
+  const [offset, setOffset] = useState<number>(0)
 
   useEffect(() => {
     const newFilters: Filter[] = []
@@ -77,9 +92,18 @@ export default function () {
   }, [products])
 
   useEffect(() => {
-    console.log(selectedFilters)
-    fetchProducts(search, setProducts, selectedFilters)
-  }, [search, selectedFilters])
+    // Reinciamos el offset para no acabar en una página vacía
+    setOffset(0)
+  }, [search])
+
+  useEffect(() => {
+    fetchProducts(setProducts, setCount, {
+      search: search,
+      filters: selectedFilters,
+      limit: limit,
+      offset: offset * limit
+    })
+  }, [search, selectedFilters, limit, offset])
 
   return (
     <>
@@ -96,6 +120,13 @@ export default function () {
       <main>
         <aside>
           <FiltersMenu filters={filters} setSelectedFilters={setSelectedFilters} />
+          <Pagination
+            count={count}
+            limit={limit}
+            onLimitChange={(value) => setLimit(value)}
+            offset={offset}
+            onOffsetChange={(value) => setOffset(value)}
+          />
         </aside>
         <section>
           <div id="products" className="w-full px-20 flex justify-center items-center flex-wrap">
@@ -114,37 +145,3 @@ export default function () {
     </>
   )
 }
-
-// export default function () {
-//   const { serverConfig } = useLoaderData<typeof loader>()
-//   console.log(TypesenseInstantSearchAdapter)
-//   const typesenseInstantSearchAdapter = new TypesenseInstantSearchAdapter({
-//     server: {
-//       ...serverConfig
-//     },
-//     additionalSearchParameters: {
-//       query_by: 'full_name,backend,brand',
-//       query_by_weights: '4,1,2',
-//       group_by: 'deduplication_key'
-//     },
-//   })
-//   console.log(typesenseInstantSearchAdapter)
-
-//   return (
-//     <>
-//       <InstantSearch indexName="products" searchClient={typesenseInstantSearchAdapter.searchClient}></InstantSearch>
-
-//       <div className="flex">
-//         <aside className="w-1/3 bg-gray-50 h-screen">
-
-//         </aside>
-
-//         <main>
-//           <SearchBox />
-//           <Hits hitComponent={ProductCard} />
-//           Main content
-//         </main>
-//       </div>
-//     </>
-//   )
-// }
