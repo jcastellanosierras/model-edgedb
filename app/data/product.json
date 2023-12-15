@@ -1,0 +1,44 @@
+{
+  "backend_id": 1,
+  "languages": ["es_ES"],
+  "es_ES": {
+    "collection_alias": "collection a la que apunta este idioma en typesense (que sea un alias de typesense)",
+    "odoo_id": 29956,
+    "name": "BOLSA DE OJEO LONA CAMUFLAJE HN/6",
+    "display_name": "[84503] BOLSA DE OJEO LONA CAMUFLAJE HN/6",
+    "barcode": null,
+    "sku": "84503",
+    "description": null,
+    "short_description": null,
+    "deduplication_key": "BOLSA DE OJEO LONA CAMUFLAJE HN/6-29956",
+    "url_key": "bolsa-de-ojeo-lona-camuflaje-hn-6",
+    "avatar_image": null,
+    "images": [],
+    "hierarchical_categories": {
+      "lv0": "09 CAZA",
+      "lv1": "lskjafls revisar en algolia"
+    },
+    "uom_id": "Units",
+    "brand": {
+      "id": null,
+      "name": null,
+      "url_key": null
+    },
+    "price": {
+      "value": 1.0,
+      "tax_included": true,
+      "original_value": 1.0,
+      "discount": 0.0
+    },
+    "variant_count": 1,
+    "variant_attributes": [],
+    "dmi_ecommerce_product_backend_new_product": false,
+    "dmi_ecommerce_tags": [],
+    "dmi_product_sector": [],
+    "dmi_ecommerce_packaging_ids": [],
+    "dmi_ecommerce_optional_product_ids": [],
+    "dmi_ecommerce_alternative_product_ids": [],
+    "dmi_ecommerce_accesory_product_ids": [],
+    "compatible_machines": []
+  }
+}
